@@ -1,5 +1,7 @@
 # ARSynth Control
 
+[![Release](https://img.shields.io/github/v/release/NDAstudio/ARsynth-tools)](https://github.com/NDAstudio/ARsynth-tools/releases/latest)
+
 A TouchDesigner component for switching [ARSynth](https://arsynth.cc) AR scenes.
 
 ARSynth is a platform for AR at live events: you compose scenes in a browser, and the
@@ -14,7 +16,7 @@ part of a show cue instead of something you click in a browser tab mid-set.
 
 ## Install
 
-1. Download `ARsynth_control.tox` from the [latest release](../../releases/latest).
+1. Download [`ARsynth_control.tox`](https://github.com/NDAstudio/ARsynth-tools/releases/latest/download/ARsynth_control.tox).
 2. Drag it into your project.
 3. Fill in your ARSynth email and password on the **Connection** page and click
    **Log in**.
@@ -87,6 +89,8 @@ DATs.
 Early days — issues and questions welcome. If you want to change the component
 itself, please open an issue first: `.tox` files can't be merged by Git, so two
 people editing one in parallel means someone's work is lost.
+
+How a release is cut is in [RELEASING.md](RELEASING.md).
 
 ## Credits
 

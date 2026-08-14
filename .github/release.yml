@@ -1,0 +1,22 @@
+changelog:
+  exclude:
+    labels:
+      - chore
+      - ci
+  categories:
+    - title: Component
+      labels:
+        - component
+    - title: Added
+      labels:
+        - enhancement
+        - feature
+    - title: Fixed
+      labels:
+        - bug
+    - title: Docs
+      labels:
+        - documentation
+    - title: Other
+      labels:
+        - "*"
