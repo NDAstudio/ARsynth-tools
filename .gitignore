@@ -1,0 +1,31 @@
+# Credentials
+.env
+.session.json
+
+# TouchDesigner working directories
+Backup/
+logs/
+Chan/
+Movie/
+Image/
+Audio/
+Geo/
+*.toe~lock~
+*.tox~lock~
+
+# Python
+__pycache__/
+*.pyc
+
+# macOS
+.DS_Store
+
+# Local working material, not part of the published component
+_backup/
+_audit/
+ARsynth-sceneswitcher/
+scripts/
+
+# Derived at runtime
+qr_*.png
+_diag.json

@@ -1,0 +1,5 @@
+# TouchDesigner files are binary. Git cannot diff or merge them — do not try.
+*.tox binary
+*.toe binary
+*.tox -merge
+*.toe -merge
