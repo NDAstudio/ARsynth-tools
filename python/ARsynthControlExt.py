@@ -16,12 +16,15 @@ import urllib.request
 
 class ARsynthControl:
 
+    VERSION = "1.0.0"
+
     def __init__(self, ownerComp):
         self.ownerComp = ownerComp
         self.api = mod(ownerComp.op('arsynth_api'))
         # Tokens live in memory only. Putting them in ownerComp.store() would
         # write them into the saved .toe/.tox file.
         self.session = None
+        self._sync_version_par()
 
     # -- helpers -----------------------------------------------------------
 
@@ -35,7 +38,20 @@ class ARsynthControl:
 
     def _client(self):
         par = self.ownerComp.par
-        return self.api.ArsynthClient(par.Supabaseurl.eval(), par.Anonkey.eval())
+        return self.api.ArsynthClient(
+            par.Supabaseurl.eval(),
+            par.Anonkey.eval(),
+            user_agent=f"ARsynth_control/{self.VERSION}",
+        )
+
+    def _sync_version_par(self):
+        """Keep the read-only Version par in sync if it exists on the component."""
+        try:
+            par = self.ownerComp.par.Version
+        except Exception:
+            return
+        par.val = self.VERSION
+        par.readOnly = True
 
     def _status(self, message):
         self.ownerComp.par.Status = message

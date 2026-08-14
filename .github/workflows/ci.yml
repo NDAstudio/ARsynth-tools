@@ -1,0 +1,52 @@
+name: CI
+
+on:
+  pull_request:
+  push:
+    branches: [main]
+  workflow_call:
+
+permissions:
+  contents: read
+
+jobs:
+  python:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@fbc6f3992d24b796d5a048ff273f7fcc4a7b6c09 # v5.1.0
+        with:
+          fetch-depth: 0
+
+      - uses: actions/setup-python@a26af69be951a213d495a4c3e4e4022e16d87065 # v5.6.0
+        with:
+          python-version: "3.11"
+
+      - name: Install ruff
+        run: pip install ruff==0.12.12
+
+      - name: Lint
+        # Check only. format --check would restyle the DAT mirror without a
+        # matching .tox save, which is the drift this repo is trying to avoid.
+        run: ruff check python/
+
+      - name: Compile
+        run: python -m compileall -q python/
+
+      - name: Warn if python/ drifted from the .tox
+        if: github.event_name == 'pull_request'
+        run: |
+          set -euo pipefail
+          files=$(git diff --name-only "${{ github.event.pull_request.base.sha }}...HEAD")
+          echo "Changed files:"
+          echo "$files"
+          python_changed=0
+          tox_changed=0
+          if echo "$files" | grep -q '^python/'; then
+            python_changed=1
+          fi
+          if echo "$files" | grep -q '^ARsynth_control.tox$'; then
+            tox_changed=1
+          fi
+          if [ "$python_changed" -eq 1 ] && [ "$tox_changed" -eq 0 ]; then
+            echo "::warning::python/ changed but ARsynth_control.tox did not. The DAT code in the component is what ships — re-save the .tox from TouchDesigner if this PR is meant to change the component."
+          fi

@@ -1,0 +1,23 @@
+[tool.ruff]
+line-length = 100
+target-version = "py311"
+src = ["python"]
+builtins = [
+    "op",
+    "ops",
+    "me",
+    "parent",
+    "mod",
+    "ext",
+    "tdu",
+    "td",
+    "project",
+    "ui",
+    "run",
+    "absTime",
+    "iop",
+    "ipar",
+]
+
+[tool.ruff.format]
+quote-style = "preserve"
