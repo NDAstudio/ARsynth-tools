@@ -92,7 +92,7 @@ people editing one in parallel means someone's work is lost.
 
 ## Release
 
-1. Bump `ARsynthControl.VERSION` in `python/ARsynthControlExt.py`.
+1. Bump `ARsynthControl.VERSION` in `python/td_control_ext.py`.
 2. In TouchDesigner, make sure the component's read-only `Version` par shows the
    same value, then save `ARsynth_control.tox`.
 3. Open a PR and confirm the release checkbox in the PR template.

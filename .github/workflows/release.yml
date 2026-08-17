@@ -40,10 +40,10 @@ jobs:
           version=$(python3 - <<'PY'
           import re
           from pathlib import Path
-          text = Path("python/ARsynthControlExt.py").read_text()
+          text = Path("python/td_control_ext.py").read_text()
           match = re.search(r'VERSION\s*=\s*"([^"]+)"', text)
           if not match:
-              raise SystemExit("VERSION not found in python/ARsynthControlExt.py")
+              raise SystemExit("VERSION not found in python/td_control_ext.py")
           print(match.group(1))
           PY
           )
