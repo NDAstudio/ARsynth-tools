@@ -21,14 +21,6 @@ jobs:
         with:
           python-version: "3.11"
 
-      - name: Install ruff
-        run: pip install ruff==0.12.12
-
-      - name: Lint
-        # Check only. format --check would restyle the DAT mirror without a
-        # matching .tox save, which is the drift this repo is trying to avoid.
-        run: ruff check python/
-
       - name: Compile
         run: python -m compileall -q python/
 

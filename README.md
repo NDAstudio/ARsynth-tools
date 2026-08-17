@@ -90,7 +90,19 @@ Early days — issues and questions welcome. If you want to change the component
 itself, please open an issue first: `.tox` files can't be merged by Git, so two
 people editing one in parallel means someone's work is lost.
 
-How a release is cut is in [RELEASING.md](RELEASING.md).
+## Release
+
+1. Bump `ARsynthControl.VERSION` in `python/ARsynthControlExt.py`.
+2. In TouchDesigner, make sure the component's read-only `Version` par shows the
+   same value, then save `ARsynth_control.tox`.
+3. Open a PR and add the `release` label to get the manual checklist comment.
+4. Merge to `main`, then tag and push:
+
+```bash
+git checkout main && git pull
+git tag -a v1.0.0 -m "v1.0.0"
+git push origin v1.0.0
+```
 
 ## Credits
 
