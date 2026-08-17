@@ -95,7 +95,7 @@ people editing one in parallel means someone's work is lost.
 1. Bump `ARsynthControl.VERSION` in `python/ARsynthControlExt.py`.
 2. In TouchDesigner, make sure the component's read-only `Version` par shows the
    same value, then save `ARsynth_control.tox`.
-3. Open a PR and add the `release` label to get the manual checklist comment.
+3. Open a PR and confirm the release checkbox in the PR template.
 4. Merge to `main`, then tag and push:
 
 ```bash
