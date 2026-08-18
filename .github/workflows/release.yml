@@ -1,0 +1,113 @@
+name: Release
+
+on:
+  push:
+    tags:
+      - "v*.*.*"
+
+permissions:
+  contents: write
+
+jobs:
+  check:
+    uses: ./.github/workflows/ci.yml
+
+  publish:
+    needs: check
+    runs-on: ubuntu-latest
+    environment:
+      name: release
+      url: ${{ steps.publish.outputs.url }}
+    steps:
+      - uses: actions/checkout@fbc6f3992d24b796d5a048ff273f7fcc4a7b6c09 # v5.1.0
+        with:
+          fetch-depth: 0
+          fetch-tags: true
+
+      - name: Gate tag, version, and artifact
+        run: |
+          set -euo pipefail
+          TAG="${GITHUB_REF_NAME}"
+          SHA="${GITHUB_SHA}"
+
+          if [[ "$TAG" =~ -(rc|beta|alpha) ]]; then
+            echo "Prerelease tag $TAG: skipping ancestor-of-main check"
+          else
+            git fetch origin main
+            git merge-base --is-ancestor "$SHA" origin/main
+          fi
+
+          version=$(python3 - <<'PY'
+          import re
+          from pathlib import Path
+          text = Path("python/td_control_ext.py").read_text()
+          match = re.search(r'VERSION\s*=\s*"([^"]+)"', text)
+          if not match:
+              raise SystemExit("VERSION not found in python/td_control_ext.py")
+          print(match.group(1))
+          PY
+          )
+          tag_version="${TAG#v}"
+          base_version="${tag_version%%-*}"
+          if [ "$version" != "$base_version" ]; then
+            echo "VERSION ($version) does not match tag ($base_version from $TAG)"
+            exit 1
+          fi
+
+          python3 - <<'PY'
+          from pathlib import Path
+          path = Path("ARsynth_control.tox")
+          if not path.is_file():
+              raise SystemExit("ARsynth_control.tox is missing")
+          data = path.read_bytes()
+          if len(data) <= 1024:
+              raise SystemExit(f"ARsynth_control.tox is too small ({len(data)} bytes)")
+          if data.startswith(b"version https://git-lfs"):
+              raise SystemExit("ARsynth_control.tox looks like a Git LFS pointer")
+          PY
+
+          if prev=$(git describe --tags --abbrev=0 --match 'v*' HEAD^ 2>/dev/null); then
+            changed=$(git diff --name-only "$prev"..HEAD)
+            echo "Files changed since $prev:"
+            echo "$changed"
+            if echo "$changed" | grep -q '^python/' \
+               && ! echo "$changed" | grep -q '^ARsynth_control.tox$'; then
+              echo "python/ changed since $prev but ARsynth_control.tox did not. Re-save the component from TouchDesigner."
+              exit 1
+            fi
+          else
+            echo "No previous tag; skipping component freshness check"
+          fi
+
+      - name: Publish GitHub Release
+        id: publish
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          set -euo pipefail
+          TAG="${GITHUB_REF_NAME}"
+          PRERELEASE=
+          if [[ "$TAG" =~ -(rc|beta|alpha) ]]; then
+            PRERELEASE=1
+          fi
+
+          {
+            cat <<EOF
+          Download [\`ARsynth_control.tox\`](https://github.com/${GITHUB_REPOSITORY}/releases/download/${TAG}/ARsynth_control.tox) and drag it into a TouchDesigner network.
+
+          Stable latest: https://github.com/${GITHUB_REPOSITORY}/releases/latest/download/ARsynth_control.tox
+
+          Built and tested on TouchDesigner 2025.33070 on macOS. No external Python packages.
+
+          EOF
+            gh api "repos/${GITHUB_REPOSITORY}/releases/generate-notes" \
+              -f tag_name="$TAG" \
+              -f target_commitish="${GITHUB_SHA}" \
+              --jq .body
+          } > /tmp/release-notes.md
+
+          url=$(gh release create "$TAG" ARsynth_control.tox \
+            --title "$TAG" \
+            --notes-file /tmp/release-notes.md \
+            ${PRERELEASE:+--prerelease})
+          echo "url=$url" >> "$GITHUB_OUTPUT"

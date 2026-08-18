@@ -77,16 +77,22 @@ class Session:
 class ArsynthClient:
     """Talks to the Supabase auth and REST endpoints behind ARSynth."""
 
-    def __init__(self, supabase_url: str, anon_key: str) -> None:
+    def __init__(self, supabase_url: str, anon_key: str, *,
+                 user_agent: str = "ARsynth_control") -> None:
         self.supabase_url = supabase_url.rstrip("/")
         self.anon_key = anon_key
+        self.user_agent = user_agent
         self._ssl_context = ssl_context()
 
     # -- transport ---------------------------------------------------------
 
     def _request(self, method: str, path: str, *, body: dict | None = None,
                  token: str | None = None) -> Any:
-        headers = {"apikey": self.anon_key, "Content-Type": "application/json"}
+        headers = {
+            "apikey": self.anon_key,
+            "Content-Type": "application/json",
+            "User-Agent": self.user_agent,
+        }
         if token:
             headers["Authorization"] = f"Bearer {token}"
 
