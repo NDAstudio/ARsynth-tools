@@ -1,5 +1,5 @@
 # Routes parameter changes to the extension. The behaviour itself lives in
-# ARsynthControlExt.py.
+# td_control_ext.py.
 
 ACTIONS = {
     'Login':   lambda ext: ext.Login(),
